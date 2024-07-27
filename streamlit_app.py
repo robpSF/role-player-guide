@@ -43,6 +43,9 @@ def replace_emojis(text):
 class PDF(FPDF):
     pass
 
+def encode_text(text):
+    return replace_emojis(text).encode('latin1', 'replace').decode('latin1')
+
 def create_pdf(df):
     pdf = PDF()
     pdf.add_page()
@@ -52,7 +55,7 @@ def create_pdf(df):
     
     for permission, group in grouped:
         pdf.set_font("Arial", style='B', size=12)
-        pdf.cell(200, 10, txt=replace_emojis(permission.strip()), ln=True, align='L')
+        pdf.cell(200, 10, txt=encode_text(permission.strip()), ln=True, align='L')
         
         for index, row in group.iterrows():
             pdf.set_font("Arial", style='', size=10)
@@ -75,17 +78,17 @@ def create_pdf(df):
 
             # Add name in bold
             pdf.set_font("Arial", style='B', size=10)
-            pdf.cell(0, 10, txt=f"Name: {replace_emojis(row.get('Name', ''))}", ln=True)
+            pdf.cell(0, 10, txt=encode_text(f"Name: {row.get('Name', '')}"), ln=True)
 
             # Add remaining details in regular font
             pdf.set_font("Arial", style='', size=10)
             y_after_name = pdf.get_y()
             pdf.set_xy(x_text, y_after_name)  # Adjust y position after name
-            text = (f"Handle: {replace_emojis(row['Handle'])}\n"
-                    f"Faction: {replace_emojis(row.get('Faction', ''))}\n"
-                    f"Beliefs: {replace_emojis(row.get('Beliefs', ''))}\n"
-                    f"Tags: {replace_emojis(row.get('Tags', ''))}\n"
-                    f"Bio: {replace_emojis(row['Bio'])}\n")
+            text = (f"Handle: {encode_text(row['Handle'])}\n"
+                    f"Faction: {encode_text(row.get('Faction', ''))}\n"
+                    f"Beliefs: {encode_text(row.get('Beliefs', ''))}\n"
+                    f"Tags: {encode_text(row.get('Tags', ''))}\n"
+                    f"Bio: {encode_text(row['Bio'])}\n")
             pdf.multi_cell(0, 6, txt=text)
             y_after_text = pdf.get_y()
             
