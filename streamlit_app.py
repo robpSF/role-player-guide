@@ -94,6 +94,11 @@ def create_pdf(df):
             
             # Ensure the next section starts below the image
             pdf.set_y(max(y_before + 30, y_after_text) + 5)
+            
+            # Add a new page if the current one is full
+            if pdf.get_y() > 250:
+                pdf.add_page()
+                pdf.set_font("Arial", style='', size=10)
         
         pdf.cell(0, 10, ln=True, border='B')
         
