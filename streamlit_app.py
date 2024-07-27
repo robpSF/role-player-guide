@@ -3,7 +3,7 @@ import pandas as pd
 from PIL import Image
 import requests
 from io import BytesIO
-from fpdf import FPDF
+from fpdf2 import FPDF, HTMLMixin
 import tempfile
 
 # Function to split the permissions and expand the dataframe
@@ -14,20 +14,23 @@ def split_permissions(df, column):
     return df.explode(column)
 
 # Function to create PDF
+class PDF(FPDF, HTMLMixin):
+    pass
+
 def create_pdf(df):
-    pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf = PDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=10)
+    pdf.add_font("NotoColorEmoji", fname="NotoColorEmoji.ttf", uni=True)
+    pdf.set_font("NotoColorEmoji", size=10)
     
     grouped = df.groupby('Permissions')
     
     for permission, group in grouped:
-        pdf.set_font("Arial", style='B', size=12)
-        pdf.cell(200, 10, txt=permission.strip().encode('latin1', 'replace').decode('latin1'), ln=True, align='L')
+        pdf.set_font("NotoColorEmoji", style='B', size=12)
+        pdf.cell(200, 10, txt=permission.strip(), ln=True, align='L')
         
         for index, row in group.iterrows():
-            pdf.set_font("Arial", style='', size=10)
+            pdf.set_font("NotoColorEmoji", style='', size=10)
             
             # Add image if available
             y_before = pdf.get_y()
@@ -43,12 +46,12 @@ def create_pdf(df):
             
             # Add text details next to the image
             pdf.set_xy(45, y_before)  # Set x position next to the image
-            text = (f"Name: {row.get('Name', '').encode('latin1', 'replace').decode('latin1')}\n"
-                    f"Handle: {row['Handle'].encode('latin1', 'replace').decode('latin1')}\n"
-                    f"Faction: {row.get('Faction', '').encode('latin1', 'replace').decode('latin1')}\n"
-                    f"Beliefs: {row.get('Beliefs', '').encode('latin1', 'replace').decode('latin1')}\n"
-                    f"Tags: {row.get('Tags', '').encode('latin1', 'replace').decode('latin1')}\n"
-                    f"Bio: {row['Bio'].encode('latin1', 'replace').decode('latin1')}\n")
+            text = (f"Name: {row.get('Name', '')}\n"
+                    f"Handle: {row['Handle']}\n"
+                    f"Faction: {row.get('Faction', '')}\n"
+                    f"Beliefs: {row.get('Beliefs', '')}\n"
+                    f"Tags: {row.get('Tags', '')}\n"
+                    f"Bio: {row['Bio']}\n")
             pdf.multi_cell(0, 10, txt=text)
             pdf.cell(0, 10, ln=True)
         pdf.cell(0, 10, ln=True, border='B')
