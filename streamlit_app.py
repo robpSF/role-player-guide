@@ -71,16 +71,21 @@ def create_pdf(df):
             
             # Add text details next to the image
             pdf.set_xy(45, y_before)  # Set x position next to the image
-            line_height = 6  # Adjust line height here
-            text = (f"Name: {replace_emojis(row.get('Name', ''))}\n"
-                    f"Handle: {replace_emojis(row['Handle'])}\n"
+            
+            # Add name in bold
+            pdf.set_font("Arial", style='B', size=10)
+            pdf.cell(0, 10, txt=f"Name: {replace_emojis(row.get('Name', ''))}", ln=True)
+            
+            # Add remaining details in regular font
+            pdf.set_font("Arial", style='', size=10)
+            text = (f"Handle: {replace_emojis(row['Handle'])}\n"
                     f"Faction: {replace_emojis(row.get('Faction', ''))}\n"
                     f"Beliefs: {replace_emojis(row.get('Beliefs', ''))}\n"
                     f"Tags: {replace_emojis(row.get('Tags', ''))}\n"
                     f"Bio: {replace_emojis(row['Bio'])}\n")
-            pdf.multi_cell(0, line_height, txt=text)
-            pdf.cell(0, line_height, ln=True)
-        pdf.cell(0, line_height, ln=True, border='B')
+            pdf.multi_cell(0, 10, txt=text)
+            pdf.cell(0, 10, ln=True)
+        pdf.cell(0, 10, ln=True, border='B')
         
     return pdf.output(dest='S').encode('latin1')
 
