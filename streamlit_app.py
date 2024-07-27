@@ -20,6 +20,9 @@ if persona_file and permissions_file:
     # Merge dataframes on the Handle column, adding Bio and Image to permissions_df
     merged_df = pd.merge(permissions_df, persona_df[['Handle', 'Bio', 'Image']], on='Handle', how='left')
     
+    # Replace NaN values with empty string
+    merged_df.fillna('', inplace=True)
+    
     # Display the merged dataframe
     st.write("Merged DataFrame", merged_df)
     
@@ -28,7 +31,7 @@ if persona_file and permissions_file:
         st.subheader(f"{row['Handle']}")
         col1, col2 = st.columns([1, 3])
         with col1:
-            if pd.notna(row['Image']):
+            if row['Image']:
                 try:
                     response = requests.get(row['Image'])
                     image = Image.open(BytesIO(response.content))
@@ -39,12 +42,12 @@ if persona_file and permissions_file:
             else:
                 st.write("No image available")
         with col2:
-            st.markdown(f"**Name:** {row.get('Name', 'N/A')}")
-            st.markdown(f"**Handle:** {row['Handle']}")
-            st.markdown(f"**Faction:** {row.get('Faction', 'N/A')}")
-            st.markdown(f"**Permissions:** {row.get('Permissions', 'N/A')}")
-            st.markdown(f"**Beliefs:** {row.get('Beliefs', 'N/A')}")
-            st.markdown(f"**Tags:** {row.get('Tags', 'N/A')}")
+            st.markdown(f"**Name:** {row.get('Name', '')}  \n"
+                        f"**Handle:** {row['Handle']}  \n"
+                        f"**Faction:** {row.get('Faction', '')}  \n"
+                        f"**Permissions:** {row.get('Permissions', '')}  \n"
+                        f"**Beliefs:** {row.get('Beliefs', '')}  \n"
+                        f"**Tags:** {row.get('Tags', '')}")
             st.write(row['Bio'])
 
     # Option to download the merged dataframe
