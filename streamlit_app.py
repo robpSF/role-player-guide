@@ -74,7 +74,7 @@ def create_pdf(df):
             
             # Add text details next to the image
             x_text = 45
-            y_text = y_before - 6  # Move text up by 6 pixels
+            y_text = y_before - 3  # Move text up by 3 pixels
             pdf.set_xy(x_text, y_text)  # Set x and y position next to the image
 
             # Add name in bold
@@ -90,7 +90,7 @@ def create_pdf(df):
                     f"Beliefs: {encode_text(row.get('Beliefs', ''))}\n"
                     f"Tags: {encode_text(row.get('Tags', ''))}\n"
                     f"Bio: {encode_text(row['Bio'])}\n")
-            pdf.multi_cell(0, 6, txt=text)
+            pdf.multi_cell(0, 3, txt=text)
             y_after_text = pdf.get_y()
             
             # Ensure the next section starts below the image
