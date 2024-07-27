@@ -26,29 +26,32 @@ if persona_file and permissions_file:
     # Display the merged dataframe
     st.write("Merged DataFrame", merged_df)
     
+    # Group by Permissions
+    grouped = merged_df.groupby('Permissions')
+
     # Create a subheader for each permission and display the image and bio
-    for index, row in merged_df.iterrows():
-        st.subheader(f"{row['Handle']}")
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            if row['Image']:
-                try:
-                    response = requests.get(row['Image'])
-                    image = Image.open(BytesIO(response.content))
-                    image = image.resize((100, 100))
-                    st.image(image, caption=row['Handle'], width=100)
-                except Exception as e:
-                    st.write("Error loading image:", e)
-            else:
-                st.write("No image available")
-        with col2:
-            st.markdown(f"**Name:** {row.get('Name', '')}  \n"
-                        f"**Handle:** {row['Handle']}  \n"
-                        f"**Faction:** {row.get('Faction', '')}  \n"
-                        f"**Permissions:** {row.get('Permissions', '')}  \n"
-                        f"**Beliefs:** {row.get('Beliefs', '')}  \n"
-                        f"**Tags:** {row.get('Tags', '')}")
-            st.write(row['Bio'])
+    for permission, group in grouped:
+        st.subheader(permission)
+        for index, row in group.iterrows():
+            col1, col2 = st.columns([1, 3])
+            with col1:
+                if row['Image']:
+                    try:
+                        response = requests.get(row['Image'])
+                        image = Image.open(BytesIO(response.content))
+                        image = image.resize((100, 100))
+                        st.image(image, caption=row['Handle'], width=100)
+                    except Exception as e:
+                        st.write("Error loading image:", e)
+                else:
+                    st.write("No image available")
+            with col2:
+                st.markdown(f"**Name:** {row.get('Name', '')}  \n"
+                            f"**Handle:** {row['Handle']}  \n"
+                            f"**Faction:** {row.get('Faction', '')}  \n"
+                            f"**Beliefs:** {row.get('Beliefs', '')}  \n"
+                            f"**Tags:** {row.get('Tags', '')}")
+                st.write(row['Bio'])
 
     # Option to download the merged dataframe
     @st.cache
