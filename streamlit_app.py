@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 from PIL import Image
-import io
+import requests
+from io import BytesIO
 
 # Streamlit app
 st.title('Persona and Permissions Matcher')
@@ -25,13 +26,20 @@ if persona_file and permissions_file:
     # Create a subheader for each permission and display the image and bio
     for index, row in merged_df.iterrows():
         st.subheader(f"Permission for {row['Handle']}")
-        if pd.notna(row['Image']):
-            image = Image.open(io.BytesIO(row['Image']))
-            image = image.resize((50, 50))
-            st.image(image, caption=row['Handle'], width=50)
-        else:
-            st.write("No image available")
-        st.write(row['Bio'])
+        col1, col2 = st.columns([1, 3])
+        with col1:
+            if pd.notna(row['Image']):
+                try:
+                    response = requests.get(row['Image'])
+                    image = Image.open(BytesIO(response.content))
+                    image = image.resize((50, 50))
+                    st.image(image, caption=row['Handle'], width=50)
+                except Exception as e:
+                    st.write("Error loading image:", e)
+            else:
+                st.write("No image available")
+        with col2:
+            st.write(row['Bio'])
 
     # Option to download the merged dataframe
     @st.cache
