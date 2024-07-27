@@ -13,18 +13,44 @@ def split_permissions(df, column):
     # Explode the DataFrame so that each permission has its own row
     return df.explode(column)
 
+# Function to replace emojis with "~"
+def replace_emojis(text):
+    emoji_pattern = re.compile("["
+                           u"\U0001F600-\U0001F64F"  # emoticons
+                           u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+                           u"\U0001F680-\U0001F6FF"  # transport & map symbols
+                           u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                           u"\U00002500-\U00002BEF"  # chinese char
+                           u"\U00002702-\U000027B0"
+                           u"\U00002702-\U000027B0"
+                           u"\U000024C2-\U0001F251"
+                           u"\U0001f926-\U0001f937"
+                           u"\U00010000-\U0010ffff"
+                           u"\u2640-\u2642"
+                           u"\u2600-\u2B55"
+                           u"\u200d"
+                           u"\u23cf"
+                           u"\u23e9"
+                           u"\u231a"
+                           u"\ufe0f"  # dingbats
+                           u"\u3030"
+                           "]+", flags=re.UNICODE)
+    return emoji_pattern.sub(r'~', text)
+
 # Function to create PDF
+class PDF(FPDF):
+    pass
+
 def create_pdf(df):
-    pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf = PDF()
     pdf.add_page()
-    #pdf.set_font("Arial", size=10)
+    pdf.set_font("Arial", size=10)
     
     grouped = df.groupby('Permissions')
     
     for permission, group in grouped:
         pdf.set_font("Arial", style='B', size=12)
-        pdf.cell(200, 10, txt=permission.strip().encode('latin1', 'replace').decode('latin1'), ln=True, align='L')
+        pdf.cell(200, 10, txt=replace_emojis(permission.strip()), ln=True, align='L')
         
         for index, row in group.iterrows():
             pdf.set_font("Arial", style='', size=10)
@@ -43,12 +69,12 @@ def create_pdf(df):
             
             # Add text details next to the image
             pdf.set_xy(45, y_before)  # Set x position next to the image
-            text = (f"Name: {row.get('Name', '').encode('latin1', 'replace').decode('latin1')}\n"
-                    f"Handle: {row['Handle'].encode('latin1', 'replace').decode('latin1')}\n"
-                    f"Faction: {row.get('Faction', '').encode('latin1', 'replace').decode('latin1')}\n"
-                    f"Beliefs: {row.get('Beliefs', '').encode('latin1', 'replace').decode('latin1')}\n"
-                    f"Tags: {row.get('Tags', '').encode('latin1', 'replace').decode('latin1')}\n"
-                    f"Bio: {row['Bio'].encode('latin1', 'replace').decode('latin1')}\n")
+            text = (f"Name: {replace_emojis(row.get('Name', ''))}\n"
+                    f"Handle: {replace_emojis(row['Handle'])}\n"
+                    f"Faction: {replace_emojis(row.get('Faction', ''))}\n"
+                    f"Beliefs: {replace_emojis(row.get('Beliefs', ''))}\n"
+                    f"Tags: {replace_emojis(row.get('Tags', ''))}\n"
+                    f"Bio: {replace_emojis(row['Bio'])}\n")
             pdf.multi_cell(0, 10, txt=text)
             pdf.cell(0, 10, ln=True)
         pdf.cell(0, 10, ln=True, border='B')
