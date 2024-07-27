@@ -3,6 +3,7 @@ import pandas as pd
 from PIL import Image
 import requests
 from io import BytesIO
+from fpdf import FPDF
 
 # Function to split the permissions and expand the dataframe
 def split_permissions(df, column):
@@ -10,6 +11,32 @@ def split_permissions(df, column):
     df[column] = df[column].str.split(',')
     # Explode the DataFrame so that each permission has its own row
     return df.explode(column)
+
+# Function to create PDF
+def create_pdf(df):
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    
+    grouped = df.groupby('Permissions')
+    
+    for permission, group in grouped:
+        pdf.set_font("Arial", style='B', size=14)
+        pdf.cell(200, 10, txt=permission.strip(), ln=True, align='L')
+        
+        for index, row in group.iterrows():
+            pdf.set_font("Arial", style='', size=12)
+            pdf.multi_cell(0, 10, txt=f"Name: {row.get('Name', '')}\n"
+                                      f"Handle: {row['Handle']}\n"
+                                      f"Faction: {row.get('Faction', '')}\n"
+                                      f"Beliefs: {row.get('Beliefs', '')}\n"
+                                      f"Tags: {row.get('Tags', '')}\n"
+                                      f"Bio: {row['Bio']}\n")
+            pdf.cell(0, 10, ln=True)
+        pdf.cell(0, 10, ln=True, border='B')
+        
+    return pdf.output(dest='S').encode('latin1')
 
 # Streamlit app
 st.title('Persona and Permissions Matcher')
@@ -64,7 +91,7 @@ if persona_file and permissions_file:
                 st.write(row['Bio'])
         st.markdown('---')
 
-    # Option to download the expanded dataframe
+    # Option to download the expanded dataframe as CSV
     @st.cache
     def convert_df(df):
         return df.to_csv(index=False).encode('utf-8')
@@ -72,9 +99,20 @@ if persona_file and permissions_file:
     csv = convert_df(expanded_df)
     
     st.download_button(
-        "Download Expanded Data",
+        "Download Expanded Data as CSV",
         csv,
         "expanded_data.csv",
         "text/csv",
         key='download-csv'
+    )
+    
+    # Option to download the expanded dataframe as PDF
+    pdf = create_pdf(expanded_df)
+    
+    st.download_button(
+        "Download Expanded Data as PDF",
+        pdf,
+        "expanded_data.pdf",
+        "application/pdf",
+        key='download-pdf'
     )
