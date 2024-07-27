@@ -90,7 +90,7 @@ def create_pdf(df):
                     f"Beliefs: {encode_text(row.get('Beliefs', ''))}\n"
                     f"Tags: {encode_text(row.get('Tags', ''))}\n"
                     f"Bio: {encode_text(row['Bio'])}\n")
-            pdf.multi_cell(0, 3, txt=text)
+            pdf.multi_cell(0, 4, txt=text)
             y_after_text = pdf.get_y()
             
             # Ensure the next section starts below the image
