@@ -120,9 +120,16 @@ if persona_file and permissions_file:
     
     # Display the expanded dataframe
     st.write("Expanded DataFrame", expanded_df)
-    
+
+    # Permissions filter
+    all_permissions = expanded_df['Permissions'].unique()
+    selected_permissions = st.multiselect("Select Permissions to Include", all_permissions, default=all_permissions)
+
+    # Filter the DataFrame based on selected permissions
+    filtered_df = expanded_df[expanded_df['Permissions'].isin(selected_permissions)]
+
     # Group by individual Permissions
-    grouped = expanded_df.groupby('Permissions')
+    grouped = filtered_df.groupby('Permissions')
 
     # Create a subheader for each permission and display the image and bio
     for permission, group in grouped:
@@ -149,28 +156,28 @@ if persona_file and permissions_file:
                 st.write(row['Bio'])
         st.markdown('---')
 
-    # Option to download the expanded dataframe as CSV
+    # Option to download the filtered dataframe as CSV
     @st.cache
     def convert_df(df):
         return df.to_csv(index=False).encode('utf-8')
 
-    csv = convert_df(expanded_df)
+    csv = convert_df(filtered_df)
     
     st.download_button(
-        "Download Expanded Data as CSV",
+        "Download Filtered Data as CSV",
         csv,
-        "expanded_data.csv",
+        "filtered_data.csv",
         "text/csv",
         key='download-csv'
     )
     
-    # Option to download the expanded dataframe as PDF
-    pdf = create_pdf(expanded_df)
+    # Option to download the filtered dataframe as PDF
+    pdf = create_pdf(filtered_df)
     
     st.download_button(
-        "Download Expanded Data as PDF",
+        "Download Filtered Data as PDF",
         pdf,
-        "expanded_data.pdf",
+        "filtered_data.pdf",
         "application/pdf",
         key='download-pdf'
     )
