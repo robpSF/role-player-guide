@@ -43,12 +43,12 @@ def create_pdf(df):
             
             # Add text details next to the image
             pdf.set_xy(45, y_before)  # Set x position next to the image
-            text = (f"Name: {row.get('Name', '').encode('latin1', 'replace').decode('latin1')}"
-                    f"Handle: {row['Handle'].encode('latin1', 'replace').decode('latin1')}"
-                    f"Faction: {row.get('Faction', '').encode('latin1', 'replace').decode('latin1')}"
-                    f"Beliefs: {row.get('Beliefs', '').encode('latin1', 'replace').decode('latin1')}"
-                    f"Tags: {row.get('Tags', '').encode('latin1', 'replace').decode('latin1')}"
-                    f"Bio: {row['Bio'].encode('latin1', 'replace').decode('latin1')}")
+            text = (f"Name: {row.get('Name', '').encode('latin1', 'replace').decode('latin1')}\n"
+                    f"Handle: {row['Handle'].encode('latin1', 'replace').decode('latin1')}\n"
+                    f"Faction: {row.get('Faction', '').encode('latin1', 'replace').decode('latin1')}\n"
+                    f"Beliefs: {row.get('Beliefs', '').encode('latin1', 'replace').decode('latin1')}\n"
+                    f"Tags: {row.get('Tags', '').encode('latin1', 'replace').decode('latin1')}\n"
+                    f"Bio: {row['Bio'].encode('latin1', 'replace').decode('latin1')}\n")
             pdf.multi_cell(0, 10, txt=text)
             pdf.cell(0, 10, ln=True)
         pdf.cell(0, 10, ln=True, border='B')
