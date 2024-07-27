@@ -18,27 +18,30 @@ if persona_file and permissions_file:
     permissions_df = pd.read_excel(permissions_file)
     
     # Merge dataframes on the Handle column
-    merged_df = pd.merge(permissions_df, persona_df[['Handle', 'Bio', 'Image']], on='Handle', how='left')
+    merged_df = pd.merge(permissions_df, persona_df[['Handle', 'Name', 'Faction', 'Bio', 'Image']], on='Handle', how='left')
     
     # Display the merged dataframe
     st.write("Merged DataFrame", merged_df)
     
     # Create a subheader for each permission and display the image and bio
     for index, row in merged_df.iterrows():
-        st.subheader(f"Permission for {row['Handle']}")
+        st.subheader(f"{row['Handle']}")
         col1, col2 = st.columns([1, 3])
         with col1:
             if pd.notna(row['Image']):
                 try:
                     response = requests.get(row['Image'])
                     image = Image.open(BytesIO(response.content))
-                    image = image.resize((50, 50))
-                    st.image(image, caption=row['Handle'], width=50)
+                    image = image.resize((100, 100))
+                    st.image(image, caption=row['Handle'], width=100)
                 except Exception as e:
                     st.write("Error loading image:", e)
             else:
                 st.write("No image available")
         with col2:
+            st.markdown(f"**Name:** {row['Name']}")
+            st.markdown(f"**Handle:** {row['Handle']}")
+            st.markdown(f"**Faction:** {row['Faction']}")
             st.write(row['Bio'])
 
     # Option to download the merged dataframe
