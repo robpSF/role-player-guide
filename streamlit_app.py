@@ -18,7 +18,7 @@ if persona_file and permissions_file:
     permissions_df = pd.read_excel(permissions_file)
     
     # Merge dataframes on the Handle column, adding Bio and Image to permissions_df
-    merged_df = pd.merge(permissions_df, persona_df[['Handle', 'Bio', 'Image', 'Beliefs', 'Tags']], on='Handle', how='left')
+    merged_df = pd.merge(permissions_df, persona_df[['Handle', 'Bio', 'Image']], on='Handle', how='left')
     
     # Display the merged dataframe
     st.write("Merged DataFrame", merged_df)
