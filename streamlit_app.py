@@ -74,7 +74,8 @@ def create_pdf(df):
             
             # Add text details next to the image
             x_text = 45
-            pdf.set_xy(x_text, y_before)  # Set x position next to the image
+            y_text = y_before - 6  # Move text up by 6 pixels
+            pdf.set_xy(x_text, y_text)  # Set x and y position next to the image
 
             # Add name in bold
             pdf.set_font("Arial", style='B', size=10)
