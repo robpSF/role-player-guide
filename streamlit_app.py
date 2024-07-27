@@ -4,6 +4,13 @@ from PIL import Image
 import requests
 from io import BytesIO
 
+# Function to split the permissions and expand the dataframe
+def split_permissions(df, column):
+    # Split the permissions by comma
+    df[column] = df[column].str.split(',')
+    # Explode the DataFrame so that each permission has its own row
+    return df.explode(column)
+
 # Streamlit app
 st.title('Persona and Permissions Matcher')
 
@@ -23,15 +30,18 @@ if persona_file and permissions_file:
     # Replace NaN values with empty string
     merged_df.fillna('', inplace=True)
     
-    # Display the merged dataframe
-    st.write("Merged DataFrame", merged_df)
+    # Split and expand the permissions
+    expanded_df = split_permissions(merged_df, 'Permissions')
     
-    # Group by Permissions
-    grouped = merged_df.groupby('Permissions')
+    # Display the expanded dataframe
+    st.write("Expanded DataFrame", expanded_df)
+    
+    # Group by individual Permissions
+    grouped = expanded_df.groupby('Permissions')
 
     # Create a subheader for each permission and display the image and bio
     for permission, group in grouped:
-        st.subheader(permission)
+        st.subheader(permission.strip())
         for index, row in group.iterrows():
             col1, col2 = st.columns([1, 3])
             with col1:
@@ -53,17 +63,17 @@ if persona_file and permissions_file:
                             f"**Tags:** {row.get('Tags', '')}")
                 st.write(row['Bio'])
 
-    # Option to download the merged dataframe
+    # Option to download the expanded dataframe
     @st.cache
     def convert_df(df):
         return df.to_csv(index=False).encode('utf-8')
 
-    csv = convert_df(merged_df)
+    csv = convert_df(expanded_df)
     
     st.download_button(
-        "Download Merged Data",
+        "Download Expanded Data",
         csv,
-        "merged_data.csv",
+        "expanded_data.csv",
         "text/csv",
         key='download-csv'
     )
