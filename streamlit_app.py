@@ -18,7 +18,9 @@ def create_pdf(df):
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
-    pdf.set_font("Arial", size=10)
+    pdf.add_font("NotoColorEmoji", fname="NotoColorEmoji.ttf", uni=True)
+    pdf.set_font("NotoColorEmoji", size=10)
+    #pdf.set_font("Arial", size=10)
     
     grouped = df.groupby('Permissions')
     
