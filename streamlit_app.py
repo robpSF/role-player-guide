@@ -18,16 +18,16 @@ def create_pdf(df):
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
+    pdf.set_font("Arial", size=10)
     
     grouped = df.groupby('Permissions')
     
     for permission, group in grouped:
-        pdf.set_font("Arial", style='B', size=14)
+        pdf.set_font("Arial", style='B', size=12)
         pdf.cell(200, 10, txt=permission.strip().encode('latin1', 'replace').decode('latin1'), ln=True, align='L')
         
         for index, row in group.iterrows():
-            pdf.set_font("Arial", style='', size=12)
+            pdf.set_font("Arial", style='', size=10)
             
             # Add image if available
             y_before = pdf.get_y()
