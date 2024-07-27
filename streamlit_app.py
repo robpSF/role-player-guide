@@ -18,8 +18,6 @@ def create_pdf(df):
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
-    pdf.add_font("NotoColorEmoji", fname="NotoColorEmoji.ttf", uni=True)
-    pdf.set_font("NotoColorEmoji", size=10)
     #pdf.set_font("Arial", size=10)
     
     grouped = df.groupby('Permissions')
@@ -45,12 +43,12 @@ def create_pdf(df):
             
             # Add text details next to the image
             pdf.set_xy(45, y_before)  # Set x position next to the image
-            text = (f"Name: {row.get('Name', '').encode('latin1', 'replace').decode('latin1')}\n"
-                    f"Handle: {row['Handle'].encode('latin1', 'replace').decode('latin1')}\n"
-                    f"Faction: {row.get('Faction', '').encode('latin1', 'replace').decode('latin1')}\n"
-                    f"Beliefs: {row.get('Beliefs', '').encode('latin1', 'replace').decode('latin1')}\n"
-                    f"Tags: {row.get('Tags', '').encode('latin1', 'replace').decode('latin1')}\n"
-                    f"Bio: {row['Bio'].encode('latin1', 'replace').decode('latin1')}\n")
+            text = (f"Name: {row.get('Name', '').encode('latin1', 'replace').decode('latin1')}\n\n"
+                    f"Handle: {row['Handle'].encode('latin1', 'replace').decode('latin1')}\n\n"
+                    f"Faction: {row.get('Faction', '').encode('latin1', 'replace').decode('latin1')}\n\n"
+                    f"Beliefs: {row.get('Beliefs', '').encode('latin1', 'replace').decode('latin1')}\n\n"
+                    f"Tags: {row.get('Tags', '').encode('latin1', 'replace').decode('latin1')}\n\n"
+                    f"Bio: {row['Bio'].encode('latin1', 'replace').decode('latin1')}\n\n")
             pdf.multi_cell(0, 10, txt=text)
             pdf.cell(0, 10, ln=True)
         pdf.cell(0, 10, ln=True, border='B')
