@@ -23,16 +23,17 @@ def create_pdf(df):
     
     for permission, group in grouped:
         pdf.set_font("Arial", style='B', size=14)
-        pdf.cell(200, 10, txt=permission.strip(), ln=True, align='L')
+        pdf.cell(200, 10, txt=permission.strip().encode('latin1', 'replace').decode('latin1'), ln=True, align='L')
         
         for index, row in group.iterrows():
             pdf.set_font("Arial", style='', size=12)
-            pdf.multi_cell(0, 10, txt=f"Name: {row.get('Name', '')}\n"
-                                      f"Handle: {row['Handle']}\n"
-                                      f"Faction: {row.get('Faction', '')}\n"
-                                      f"Beliefs: {row.get('Beliefs', '')}\n"
-                                      f"Tags: {row.get('Tags', '')}\n"
-                                      f"Bio: {row['Bio']}\n")
+            text = (f"Name: {row.get('Name', '').encode('latin1', 'replace').decode('latin1')}\n"
+                    f"Handle: {row['Handle'].encode('latin1', 'replace').decode('latin1')}\n"
+                    f"Faction: {row.get('Faction', '').encode('latin1', 'replace').decode('latin1')}\n"
+                    f"Beliefs: {row.get('Beliefs', '').encode('latin1', 'replace').decode('latin1')}\n"
+                    f"Tags: {row.get('Tags', '').encode('latin1', 'replace').decode('latin1')}\n"
+                    f"Bio: {row['Bio'].encode('latin1', 'replace').decode('latin1')}\n")
+            pdf.multi_cell(0, 10, txt=text)
             pdf.cell(0, 10, ln=True)
         pdf.cell(0, 10, ln=True, border='B')
         
