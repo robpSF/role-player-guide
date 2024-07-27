@@ -15,7 +15,7 @@ def split_permissions(df, column):
     # Explode the DataFrame so that each permission has its own row
     return df.explode(column)
 
-# Function to replace emojis with "~"
+# Function to replace emojis with "~" in the PDF output
 def replace_emojis(text):
     emoji_pattern = re.compile("["
                            u"\U0001F600-\U0001F64F"  # emoticons
@@ -113,7 +113,7 @@ if persona_file and permissions_file:
 
     # Create a subheader for each permission and display the image and bio
     for permission, group in grouped:
-        st.subheader(replace_emojis(permission.strip()))
+        st.subheader(permission.strip())
         for index, row in group.iterrows():
             col1, col2 = st.columns([1, 3])
             with col1:
@@ -128,12 +128,12 @@ if persona_file and permissions_file:
                 else:
                     st.write("No image available")
             with col2:
-                st.markdown(f"**Name:** {replace_emojis(row.get('Name', ''))}  \n"
-                            f"**Handle:** {replace_emojis(row['Handle'])}  \n"
-                            f"**Faction:** {replace_emojis(row.get('Faction', ''))}  \n"
-                            f"**Beliefs:** {replace_emojis(row.get('Beliefs', ''))}  \n"
-                            f"**Tags:** {replace_emojis(row.get('Tags', ''))}")
-                st.write(replace_emojis(row['Bio']))
+                st.markdown(f"**Name:** {row.get('Name', '')}  \n"
+                            f"**Handle:** {row['Handle']}  \n"
+                            f"**Faction:** {row.get('Faction', '')}  \n"
+                            f"**Beliefs:** {row.get('Beliefs', '')}  \n"
+                            f"**Tags:** {row.get('Tags', '')}")
+                st.write(row['Bio'])
         st.markdown('---')
 
     # Option to download the expanded dataframe as CSV
