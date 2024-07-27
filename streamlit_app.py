@@ -17,11 +17,8 @@ if persona_file and permissions_file:
     persona_df = pd.read_excel(persona_file)
     permissions_df = pd.read_excel(permissions_file)
     
-    # Merge dataframes on the Handle column
-    merged_df = pd.merge(permissions_df, persona_df, on='Handle', how='left')
-    
-    # Reorder the columns
-    merged_df = merged_df[['Name', 'Handle', 'Faction', 'Permissions', 'Bio', 'Image']]
+    # Merge dataframes on the Handle column, adding Bio and Image to permissions_df
+    merged_df = pd.merge(permissions_df, persona_df[['Handle', 'Bio', 'Image']], on='Handle', how='left')
     
     # Display the merged dataframe
     st.write("Merged DataFrame", merged_df)
@@ -42,10 +39,10 @@ if persona_file and permissions_file:
             else:
                 st.write("No image available")
         with col2:
-            st.markdown(f"**Name:** {row['Name']}")
+            st.markdown(f"**Name:** {row.get('Name', 'N/A')}")
             st.markdown(f"**Handle:** {row['Handle']}")
-            st.markdown(f"**Faction:** {row['Faction']}")
-            st.markdown(f"**Permissions:** {row['Permissions']}")
+            st.markdown(f"**Faction:** {row.get('Faction', 'N/A')}")
+            st.markdown(f"**Permissions:** {row.get('Permissions', 'N/A')}")
             st.write(row['Bio'])
 
     # Option to download the merged dataframe
