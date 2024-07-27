@@ -4,6 +4,7 @@ from PIL import Image
 import requests
 from io import BytesIO
 from fpdf import FPDF
+import tempfile
 
 # Function to split the permissions and expand the dataframe
 def split_permissions(df, column):
@@ -27,6 +28,19 @@ def create_pdf(df):
         
         for index, row in group.iterrows():
             pdf.set_font("Arial", style='', size=12)
+            
+            # Add image if available
+            if row['Image']:
+                try:
+                    response = requests.get(row['Image'])
+                    image = Image.open(BytesIO(response.content))
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmpfile:
+                        image.save(tmpfile.name)
+                        pdf.image(tmpfile.name, x=10, w=30, h=30)
+                except Exception as e:
+                    print(f"Error loading image: {e}")
+            
+            # Add text details
             text = (f"Name: {row.get('Name', '').encode('latin1', 'replace').decode('latin1')}\n"
                     f"Handle: {row['Handle'].encode('latin1', 'replace').decode('latin1')}\n"
                     f"Faction: {row.get('Faction', '').encode('latin1', 'replace').decode('latin1')}\n"
