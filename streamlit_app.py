@@ -20,6 +20,9 @@ if persona_file and permissions_file:
     # Merge dataframes on the Handle column
     merged_df = pd.merge(permissions_df, persona_df, on='Handle', how='left')
     
+    # Reorder the columns
+    merged_df = merged_df[['Name', 'Handle', 'Faction', 'Permissions', 'Bio', 'Image']]
+    
     # Display the merged dataframe
     st.write("Merged DataFrame", merged_df)
     
@@ -42,6 +45,7 @@ if persona_file and permissions_file:
             st.markdown(f"**Name:** {row['Name']}")
             st.markdown(f"**Handle:** {row['Handle']}")
             st.markdown(f"**Faction:** {row['Faction']}")
+            st.markdown(f"**Permissions:** {row['Permissions']}")
             st.write(row['Bio'])
 
     # Option to download the merged dataframe
