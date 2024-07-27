@@ -70,21 +70,28 @@ def create_pdf(df):
                     print(f"Error loading image: {e}")
             
             # Add text details next to the image
-            pdf.set_xy(45, y_before)  # Set x position next to the image
-            
+            x_text = 45
+            pdf.set_xy(x_text, y_before)  # Set x position next to the image
+
             # Add name in bold
             pdf.set_font("Arial", style='B', size=10)
             pdf.cell(0, 10, txt=f"Name: {replace_emojis(row.get('Name', ''))}", ln=True)
-            
+
             # Add remaining details in regular font
             pdf.set_font("Arial", style='', size=10)
+            y_after_name = pdf.get_y()
+            pdf.set_xy(x_text, y_after_name)  # Adjust y position after name
             text = (f"Handle: {replace_emojis(row['Handle'])}\n"
                     f"Faction: {replace_emojis(row.get('Faction', ''))}\n"
                     f"Beliefs: {replace_emojis(row.get('Beliefs', ''))}\n"
                     f"Tags: {replace_emojis(row.get('Tags', ''))}\n"
                     f"Bio: {replace_emojis(row['Bio'])}\n")
-            pdf.multi_cell(0, 10, txt=text)
-            pdf.cell(0, 10, ln=True)
+            pdf.multi_cell(0, 6, txt=text)
+            y_after_text = pdf.get_y()
+            
+            # Ensure the next section starts below the image
+            pdf.set_y(max(y_before + 30, y_after_text) + 5)
+        
         pdf.cell(0, 10, ln=True, border='B')
         
     return pdf.output(dest='S').encode('latin1')
