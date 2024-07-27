@@ -62,6 +62,7 @@ if persona_file and permissions_file:
                             f"**Beliefs:** {row.get('Beliefs', '')}  \n"
                             f"**Tags:** {row.get('Tags', '')}")
                 st.write(row['Bio'])
+        st.markdown('---')
 
     # Option to download the expanded dataframe
     @st.cache
