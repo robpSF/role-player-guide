@@ -172,7 +172,7 @@ if persona_file:
                                     f"**Beliefs:** {row.get('Beliefs', '')}  |  "
                                     f"**Tags:** {row.get('Tags', '')}  \n"
                                     f"**Bio:** {row['Bio']}")
-                        st.write(row['Bio'])
+                        #st.write(row['Bio'])
                         if mode == "Tear Sheet":
                             st.markdown(f"**Email:** {row.get('Email', '')}  \n"
                                         f"**Password:** {row.get('Password', '')}")
