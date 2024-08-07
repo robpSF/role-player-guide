@@ -1,5 +1,4 @@
 import re
-import os
 import streamlit as st
 import pandas as pd
 from PIL import Image
@@ -141,12 +140,22 @@ if persona_file:
     # Display the expanded dataframe
     st.write("Expanded DataFrame", expanded_df)
 
-    # Permissions filter
-    all_permissions = expanded_df['Permissions'].unique()
-    selected_permissions = st.multiselect("Select Permissions to Include", all_permissions, default=all_permissions)
-
-    # Filter the DataFrame based on selected permissions
-    filtered_df = expanded_df[expanded_df['Permissions'].isin(selected_permissions)]
+    if mode == "Tear Sheet":
+        filter_option = st.radio("Filter by", ["Faction", "Permissions"])
+        
+        if filter_option == "Faction":
+            all_factions = expanded_df['Faction'].unique()
+            selected_factions = st.multiselect("Select Factions to Include", all_factions, default=all_factions)
+            filtered_df = expanded_df[expanded_df['Faction'].isin(selected_factions)]
+        else:
+            all_permissions = expanded_df['Permissions'].unique()
+            selected_permissions = st.multiselect("Select Permissions to Include", all_permissions, default=all_permissions)
+            filtered_df = expanded_df[expanded_df['Permissions'].isin(selected_permissions)]
+    else:
+        # Default filtering for Role Player mode
+        all_permissions = expanded_df['Permissions'].unique()
+        selected_permissions = st.multiselect("Select Permissions to Include", all_permissions, default=all_permissions)
+        filtered_df = expanded_df[expanded_df['Permissions'].isin(selected_permissions)]
 
     # Group by individual Permissions
     grouped = filtered_df.groupby('Permissions')
