@@ -116,8 +116,6 @@ mode = st.selectbox("Select Mode", ["Role Player", "Tear Sheet"])
 
 # File uploader for persona details
 persona_file = st.file_uploader("Upload Persona Details File", type=["xlsx"])
-# File uploader for permissions
-permissions_file = st.file_uploader("Upload Permissions File", type=["xlsx"])
 
 team_df = None
 if mode == "Tear Sheet":
@@ -126,23 +124,19 @@ if mode == "Tear Sheet":
     if team_file:
         team_df = pd.read_csv(team_file)
 
-if persona_file and permissions_file:
+if persona_file:
     # Read the uploaded files
     persona_df = pd.read_excel(persona_file)
-    permissions_df = pd.read_excel(permissions_file)
     
     if mode == "Tear Sheet" and team_df is not None:
         # Match emails with persona data
         persona_df = pd.merge(persona_df, team_df[['Email', 'Password']], on='Email', how='left')
     
-    # Merge dataframes on the Handle column, adding Bio and Image to permissions_df
-    merged_df = pd.merge(permissions_df, persona_df[['Handle', 'Bio', 'Image', 'Email', 'Password']], on='Handle', how='left')
-    
     # Replace NaN values with empty string
-    merged_df.fillna('', inplace=True)
+    persona_df.fillna('', inplace=True)
     
     # Split and expand the permissions
-    expanded_df = split_permissions(merged_df, 'Permissions')
+    expanded_df = split_permissions(persona_df, 'Permissions')
     
     # Display the expanded dataframe
     st.write("Expanded DataFrame", expanded_df)
