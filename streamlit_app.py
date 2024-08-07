@@ -177,7 +177,7 @@ if persona_file and permissions_file:
                 st.markdown(f"**Name:** {row.get('Name', '')}  \n"
                             f"**Handle:** {row['Handle']}  \n"
                             f"**Faction:** {row.get('Faction', '')}  \n"
-                            f"**Beliefs:** {row.get('Beliefs', '')}  \n"
+                            f"**Beliefs:** {row.get('Beliefs', ''))}  \n"
                             f"**Tags:** {row.get('Tags', '')}")
                 st.write(row['Bio'])
                 if mode == "Tear Sheet":
@@ -211,4 +211,3 @@ if persona_file and permissions_file:
         "application/pdf",
         key='download-pdf'
     )
-
