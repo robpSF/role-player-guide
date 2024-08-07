@@ -46,7 +46,7 @@ class PDF(FPDF):
 def encode_text(text):
     return replace_emojis(text).encode('latin1', 'replace').decode('latin1')
 
-def create_pdf(df):
+def create_pdf(df, include_credentials=False):
     pdf = PDF()
     pdf.add_page()
     pdf.set_font("Arial", size=10)
@@ -90,6 +90,9 @@ def create_pdf(df):
                     f"Beliefs: {encode_text(row.get('Beliefs', ''))}\n"
                     f"Tags: {encode_text(row.get('Tags', ''))}\n"
                     f"Bio: {encode_text(row['Bio'])}\n")
+            if include_credentials:
+                text += (f"Email: {encode_text(row.get('Email', ''))}\n"
+                         f"Password: {encode_text(row.get('Password', ''))}\n")
             pdf.multi_cell(0, 4, txt=text)
             y_after_text = pdf.get_y()
             
@@ -108,18 +111,32 @@ def create_pdf(df):
 # Streamlit app
 st.title('Persona and Permissions Matcher')
 
+# Mode selection
+mode = st.selectbox("Select Mode", ["Role Player", "Tear Sheet"])
+
 # File uploader for persona details
 persona_file = st.file_uploader("Upload Persona Details File", type=["xlsx"])
 # File uploader for permissions
 permissions_file = st.file_uploader("Upload Permissions File", type=["xlsx"])
+
+team_df = None
+if mode == "Tear Sheet":
+    # File uploader for team file
+    team_file = st.file_uploader("Upload Team File", type=["csv"])
+    if team_file:
+        team_df = pd.read_csv(team_file)
 
 if persona_file and permissions_file:
     # Read the uploaded files
     persona_df = pd.read_excel(persona_file)
     permissions_df = pd.read_excel(permissions_file)
     
+    if mode == "Tear Sheet" and team_df is not None:
+        # Match emails with persona data
+        persona_df = pd.merge(persona_df, team_df[['Email', 'Password']], on='Email', how='left')
+    
     # Merge dataframes on the Handle column, adding Bio and Image to permissions_df
-    merged_df = pd.merge(permissions_df, persona_df[['Handle', 'Bio', 'Image']], on='Handle', how='left')
+    merged_df = pd.merge(permissions_df, persona_df[['Handle', 'Bio', 'Image', 'Email', 'Password']], on='Handle', how='left')
     
     # Replace NaN values with empty string
     merged_df.fillna('', inplace=True)
@@ -163,6 +180,9 @@ if persona_file and permissions_file:
                             f"**Beliefs:** {row.get('Beliefs', '')}  \n"
                             f"**Tags:** {row.get('Tags', '')}")
                 st.write(row['Bio'])
+                if mode == "Tear Sheet":
+                    st.markdown(f"**Email:** {row.get('Email', '')}  \n"
+                                f"**Password:** {row.get('Password', '')}")
         st.markdown('---')
 
     # Option to download the filtered dataframe as CSV
@@ -181,7 +201,8 @@ if persona_file and permissions_file:
     )
     
     # Option to download the filtered dataframe as PDF
-    pdf = create_pdf(filtered_df)
+    include_credentials = mode == "Tear Sheet"
+    pdf = create_pdf(filtered_df, include_credentials)
     
     st.download_button(
         "Download Filtered Data as PDF",
@@ -190,3 +211,4 @@ if persona_file and permissions_file:
         "application/pdf",
         key='download-pdf'
     )
+
