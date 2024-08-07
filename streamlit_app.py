@@ -45,16 +45,20 @@ class PDF(FPDF):
 def encode_text(text):
     return replace_emojis(text).encode('latin1', 'replace').decode('latin1')
 
-def create_pdf(df, include_credentials=False):
+def create_pdf(df, include_credentials=False, group_by_permissions=True):
     pdf = PDF()
     pdf.add_page()
     pdf.set_font("Arial", size=10)
     
-    grouped = df.groupby('Permissions')
-    
-    for permission, group in grouped:
-        pdf.set_font("Arial", style='B', size=12)
-        pdf.cell(200, 10, txt=encode_text(permission.strip()), ln=True, align='L')
+    if group_by_permissions:
+        grouped = df.groupby('Permissions')
+    else:
+        grouped = df.groupby('Faction')  # This will be used to avoid grouping if required
+
+    for key, group in grouped:
+        if group_by_permissions:
+            pdf.set_font("Arial", style='B', size=12)
+            pdf.cell(200, 10, txt=encode_text(key.strip()), ln=True, align='L')
         
         for index, row in group.iterrows():
             pdf.set_font("Arial", style='', size=10)
@@ -84,9 +88,7 @@ def create_pdf(df, include_credentials=False):
             pdf.set_font("Arial", style='', size=10)
             y_after_name = pdf.get_y()
             pdf.set_xy(x_text, y_after_name)  # Adjust y position after name
-            text = (f"Handle: {encode_text(row['Handle'])}\n"
-                    f"Faction: {encode_text(row.get('Faction', ''))}\n"
-                    f"Beliefs: {encode_text(row.get('Beliefs', ''))}\n"
+            text = (f"Beliefs: {encode_text(row.get('Beliefs', ''))}  |  "
                     f"Tags: {encode_text(row.get('Tags', ''))}\n"
                     f"Bio: {encode_text(row['Bio'])}\n")
             if include_credentials:
@@ -147,46 +149,98 @@ if persona_file:
             all_factions = expanded_df['Faction'].unique()
             selected_factions = st.multiselect("Select Factions to Include", all_factions, default=all_factions)
             filtered_df = expanded_df[expanded_df['Faction'].isin(selected_factions)]
+            
+            # Group by faction
+            grouped = filtered_df.groupby('Faction')
+            for faction, group in grouped:
+                st.subheader(faction.strip())
+                for index, row in group.iterrows():
+                    col1, col2 = st.columns([1, 3])
+                    with col1:
+                        if row['Image']:
+                            try:
+                                response = requests.get(row['Image'])
+                                image = Image.open(BytesIO(response.content))
+                                image = image.resize((100, 100))
+                                st.image(image, caption=row['Handle'], width=100)
+                            except Exception as e:
+                                st.write("Error loading image:", e)
+                        else:
+                            st.write("No image available")
+                    with col2:
+                        st.markdown(f"**Name:** {row.get('Name', '')}  \n"
+                                    f"**Beliefs:** {row.get('Beliefs', '')}  |  "
+                                    f"**Tags:** {row.get('Tags', '')}  \n"
+                                    f"**Bio:** {row['Bio']}")
+                        st.write(row['Bio'])
+                        if mode == "Tear Sheet":
+                            st.markdown(f"**Email:** {row.get('Email', '')}  \n"
+                                        f"**Password:** {row.get('Password', '')}")
+                st.markdown('---')
         else:
             all_permissions = expanded_df['Permissions'].unique()
             selected_permissions = st.multiselect("Select Permissions to Include", all_permissions, default=all_permissions)
             filtered_df = expanded_df[expanded_df['Permissions'].isin(selected_permissions)]
+            
+            # Group by individual Permissions
+            grouped = filtered_df.groupby('Permissions')
+            for permission, group in grouped:
+                st.subheader(permission.strip())
+                for index, row in group.iterrows():
+                    col1, col2 = st.columns([1, 3])
+                    with col1:
+                        if row['Image']:
+                            try:
+                                response = requests.get(row['Image'])
+                                image = Image.open(BytesIO(response.content))
+                                image = image.resize((100, 100))
+                                st.image(image, caption=row['Handle'], width=100)
+                            except Exception as e:
+                                st.write("Error loading image:", e)
+                        else:
+                            st.write("No image available")
+                    with col2:
+                        st.markdown(f"**Name:** {row.get('Name', '')}  \n"
+                                    f"**Handle:** {row['Handle']}  \n"
+                                    f"**Faction:** {row.get('Faction', '')}  \n"
+                                    f"**Beliefs:** {row.get('Beliefs', '')}  \n"
+                                                                        f"**Tags:** {row.get('Tags', '')}")
+                        st.write(row['Bio'])
+                        if mode == "Tear Sheet":
+                            st.markdown(f"**Email:** {row.get('Email', '')}  \n"
+                                        f"**Password:** {row.get('Password', '')}")
+                st.markdown('---')
     else:
         # Default filtering for Role Player mode
         all_permissions = expanded_df['Permissions'].unique()
         selected_permissions = st.multiselect("Select Permissions to Include", all_permissions, default=all_permissions)
         filtered_df = expanded_df[expanded_df['Permissions'].isin(selected_permissions)]
 
-    # Group by individual Permissions
-    grouped = filtered_df.groupby('Permissions')
-
-    # Create a subheader for each permission and display the image and bio
-    for permission, group in grouped:
-        st.subheader(permission.strip())
-        for index, row in group.iterrows():
-            col1, col2 = st.columns([1, 3])
-            with col1:
-                if row['Image']:
-                    try:
-                        response = requests.get(row['Image'])
-                        image = Image.open(BytesIO(response.content))
-                        image = image.resize((100, 100))
-                        st.image(image, caption=row['Handle'], width=100)
-                    except Exception as e:
-                        st.write("Error loading image:", e)
-                else:
-                    st.write("No image available")
-            with col2:
-                st.markdown(f"**Name:** {row.get('Name', '')}  \n"
-                            f"**Handle:** {row['Handle']}  \n"
-                            f"**Faction:** {row.get('Faction', '')}  \n"
-                            f"**Beliefs:** {row.get('Beliefs', '')}  \n"
-                            f"**Tags:** {row.get('Tags', '')}")
-                st.write(row['Bio'])
-                if mode == "Tear Sheet":
-                    st.markdown(f"**Email:** {row.get('Email', '')}  \n"
-                                f"**Password:** {row.get('Password', '')}")
-        st.markdown('---')
+        # Group by individual Permissions
+        grouped = filtered_df.groupby('Permissions')
+        for permission, group in grouped:
+            st.subheader(permission.strip())
+            for index, row in group.iterrows():
+                col1, col2 = st.columns([1, 3])
+                with col1:
+                    if row['Image']:
+                        try:
+                            response = requests.get(row['Image'])
+                            image = Image.open(BytesIO(response.content))
+                            image = image.resize((100, 100))
+                            st.image(image, caption=row['Handle'], width=100)
+                        except Exception as e:
+                            st.write("Error loading image:", e)
+                    else:
+                        st.write("No image available")
+                with col2:
+                    st.markdown(f"**Name:** {row.get('Name', '')}  \n"
+                                f"**Handle:** {row['Handle']}  \n"
+                                f"**Faction:** {row.get('Faction', '')}  \n"
+                                f"**Beliefs:** {row.get('Beliefs', '')}  \n"
+                                f"**Tags:** {row.get('Tags', '')}")
+                    st.write(row['Bio'])
+            st.markdown('---')
 
     # Option to download the filtered dataframe as CSV
     @st.cache
@@ -205,7 +259,8 @@ if persona_file:
     
     # Option to download the filtered dataframe as PDF
     include_credentials = mode == "Tear Sheet"
-    pdf = create_pdf(filtered_df, include_credentials)
+    group_by_permissions = not (mode == "Tear Sheet" and filter_option == "Faction")
+    pdf = create_pdf(filtered_df, include_credentials, group_by_permissions)
     
     st.download_button(
         "Download Filtered Data as PDF",
@@ -214,3 +269,4 @@ if persona_file:
         "application/pdf",
         key='download-pdf'
     )
+
